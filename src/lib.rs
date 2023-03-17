@@ -1,36 +1,59 @@
 // Rust GDNative implementation of this Godot tutorial:
 // https://docs.godotengine.org/en/stable/tutorials/plugins/editor/making_plugins.html#a-custom-node
 
-use gdnative::api::{EditorPlugin, Resource, Script, Texture};
+use gdnative::api::{ Resource, Script, Texture};
 use gdnative::prelude::*;
 
+//ipfs
+use ipfs_embed::{Ipfs, IpfsOptions};
+
 #[derive(NativeClass)]
-#[inherit(EditorPlugin)]
-struct CustomNode;
+#[inherit(Node)]
+
+//#[register_with(Self::register)]
+
+pub struct IPFSNode;
 
 #[methods]
-impl CustomNode {
-    fn new(_owner: TRef<EditorPlugin>) -> Self {
-        CustomNode
+impl IPFSNode {
+    fn new(_base: &Node) -> Self {
+        IPFSNode
     }
 
     #[method]
-    fn _enter_tree(&self, #[base] owner: TRef<EditorPlugin>) {
+    fn _enter_tree(&self, #[base] _base: &Node) {
         // Initialization of the plugin goes here.
         // Add the new type with a name, a parent type, a script and an icon.
         let script = unsafe { load::<Script>("res://my_button.gdns", "Script").unwrap() };
         let texture = unsafe {
             load::<Texture>("res://making_plugins-custom_node_icon.png", "Texture").unwrap()
         };
-        owner.add_custom_type("MyButton", "Button", script, texture);
+        //_base.add_custom_type("MyButton", "Button", script, texture);
     }
 
     #[method]
-    fn _exit_tree(&self, #[base] owner: TRef<EditorPlugin>) {
+    fn _exit_tree(&self, #[base] _base: &Node) {
         // Clean-up of the plugin goes here.
         // Always remember to remove it from the engine when deactivated.
-        owner.remove_custom_type("MyButton");
+        //_base.remove_custom_type("MyButton");
+        todo!()
     }
+
+    #[tokio::main]
+    async fn main() {
+        let options = IpfsOptions::default();
+        let ipfs = Ipfs::new(options).await.unwrap();
+
+        // The CID  of the file you want to Download
+        let cid = "QmNoThogc1D7XCzQrjePPxChyGmuohX6LXqDTCLJwTUUfR".to_string();
+
+        // Download the File
+        let data = ipfs.get(cid).unwrap();
+
+        //print the downloaded file's contents
+        println!("{}", String::from_utf8_lossy(&data));
+    }
+
 }
 
 #[derive(NativeClass)]
@@ -66,7 +89,7 @@ where
 }
 
 fn init(handle: InitHandle) {
-    handle.add_tool_class::<CustomNode>();
+    handle.add_tool_class::<IPFSNode>();
     handle.add_tool_class::<MyButton>();
 }
 

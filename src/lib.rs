@@ -5,7 +5,10 @@ use gdnative::api::{ Resource, Script, Texture};
 use gdnative::prelude::*;
 
 //ipfs
-use ipfs_embed::{Ipfs, IpfsOptions};
+use ipfs_embed::{Ipfs, Config, StorageConfig, NetworkConfig};
+use ipfs_embed::identity::ed25519::Keypair;
+use std::path::PathBuf;
+use std::time::Duration;
 
 #[derive(NativeClass)]
 #[inherit(Node)]
@@ -41,17 +44,64 @@ impl IPFSNode {
 
     #[tokio::main]
     async fn main() {
-        let options = IpfsOptions::default();
-        let ipfs = Ipfs::new(options).await.unwrap();
+        //let config = IpfsOptions::default();
+        let path1 = PathBuf::from(r"res://addons/godot-ipfs");
+        let path2 = PathBuf::from(r"res://addons/godot-ipfs");
+        let path3 = PathBuf::from(r"res://addons/godot-ipfs");
+        let five_seconds = Duration::new(5, 0);
+        let six_seconds = Duration::new(6, 0);
+
+        let keypair = Keypair::generate();
+
+
+
+        let storage_params = StorageConfig{
+            path: Some (path1) ,
+            access_db_path : Some (path2) ,
+            cache_size_blocks : 0u64,
+            cache_size_bytes : 0u64,
+            gc_interval : five_seconds,
+            gc_min_blocks : 0usize,
+            gc_target_duration : six_seconds,
+
+        };
+
+        let network_params = NetworkConfig{
+            enable_loopback : true,
+            port_reuse : true,
+            node_name : String::from("IpfsNode"),
+            node_key: keypair,
+            psk: None,
+            dns: None,
+            mdns: None,
+            kad: None,
+            ping: None,
+            identify: None,
+            gossipsub: None,
+            broadcast: None,
+            bitswap: None,
+            keep_alive: true,
+
+
+        };
+
+        let config = Config {
+            storage: storage_params,
+            network: network_params,
+        };
+
+        let ipfs = Ipfs::new(config).await.unwrap();
 
         // The CID  of the file you want to Download
-        let cid = "QmNoThogc1D7XCzQrjePPxChyGmuohX6LXqDTCLJwTUUfR".to_string();
+        //let cid = "QmNoThogc1D7XCzQrjePPxChyGmuohX6LXqDTCLJwTUUfR".parse().unwrap();
 
         // Download the File
-        let data = ipfs.get(cid).unwrap();
+        //let data = ipfs.get(cid).unwrap();
 
         //print the downloaded file's contents
-        println!("{}", String::from_utf8_lossy(&data));
+        //println!("{}", String::from_utf8_lossy(&data));
+        let status = ipfs.peers().swap(10usize, 10usize);
+        println!("{:?}", &status);
     }
 
 }

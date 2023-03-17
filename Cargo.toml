@@ -1,7 +1,7 @@
 [package]
-name = "native-plugin"
-version = "0.1.0"
-authors = ["The godot-rust developers"]
+name = "godot-ipfs"
+version = "0.0.1"
+authors = ["Samuel Onome Harrison"]
 edition = "2021"
 rust-version = "1.56"
 license = "MIT"
@@ -11,4 +11,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-gdnative = { version = "0.11", features = ["async"] }
+tokio = { version = "1.10", features = ["full"] }
+gdnative = { version = "0.11"   }
+ipfs-embed = {git = "https://github.com/Sam2much96/ipfs-embed", rev = "db72675"}
+

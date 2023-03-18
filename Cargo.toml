@@ -1,3 +1,5 @@
+cargo-features = ["test-dummy-unstable"]
+
 [package]
 name = "godot-ipfs"
 version = "0.0.1"

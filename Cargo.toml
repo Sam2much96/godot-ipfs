@@ -12,6 +12,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 tokio = { version = "1.10", features = ["full"] }
-gdnative = { version = "0.11"   }
+futures = "0.3"
+gdnative = { version = "0.11", features = ["async", ]  }
 ipfs-embed = {git = "https://github.com/Sam2much96/ipfs-embed", rev = "db72675"}
-
+libipld = {git = "https://github.com/ipld/libipld", rev = "65e0b38"}

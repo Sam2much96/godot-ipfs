@@ -13,6 +13,7 @@ use ipfs_embed::identity::ed25519::Keypair;
 use libipld::store::StoreParams;
 use libipld::cid::multihash::MultihashDigest;
 use libipld::codec::Codec;
+use ipfs_embed::Cid;
 
 use std::path::PathBuf;
 use std::time::Duration;
@@ -21,13 +22,13 @@ use std::time::Duration;
 
 #[derive(NativeClass)]
 #[inherit(Node)]
-
+//#[feature(inherent_associated_types)]
 
 //#[register_with(Self::register)]
 
-pub struct IPFS{
+pub struct IPFS<'P>{
     //S : dyn 10usize,
-    P : dyn StoreParams <Hashes = dyn MultihashDigest<10usize>, Codecs = dyn Codec>,
+   // P : dyn StoreParams <Hashes = dyn MultihashDigest<10usize>, Codecs = dyn Codec>,
 }
 
 
@@ -36,42 +37,36 @@ trait NativeClassMethods {
         fn new() -> VariantArray{todo!()}
     }
 trait NativeClass{
+    
+
         fn new() -> VariantArray{todo!()}
     }
 
+trait usize<'a>{}
+
+impl dyn MultihashDigest<{S}>{
+     //type S ; //= dyn usize<'a>;
+
+}
+
+//#[feature(inherent_associated_types)]
 #[methods]
-impl IPFS{
+impl <P> IPFS<'_>{
     //P : dyn StoreParams <Hashes = dyn MultihashDigest<10usize>, Codecs = dyn Codec>,
-    //type <S>;
-    type S = dyn usize;
-    type P = dyn StoreParams <Hashes = dyn MultihashDigest<S >, Codecs = dyn Codec>; // <Hashes = dyn MultihashDigest<10usize>, Codecs = dyn Codec>;
+    
+    
+    
+    //type S = dyn usize<'a>;
+    type P = dyn StoreParams <Hashes = dyn MultihashDigest<{S}>, Codecs = dyn Codec>; // <Hashes = dyn MultihashDigest<10usize>, Codecs = dyn Codec>;
     
 
-    //fn new(_base: &Node) -> Self {
+    fn new(_base: &Node) -> Self {
         //IPFSNode
-    //    todo!()
-    //}
-
-    #[method]
-    fn _enter_tree(&self, #[base] _base: &Node) {
-        // Initialization of the plugin goes here.
-        // Add the new type with a name, a parent type, a script and an icon.
-        let script = unsafe { load::<Script>("res://my_button.gdns").unwrap() };
-        let texture = unsafe {
-            load::<Texture>("res://making_plugins-custom_node_icon.png").unwrap()
-        };
-        //_base.add_custom_type("MyButton", "Button", script, texture);
-    }
-
-    #[method]
-    fn _exit_tree(&self, #[base] _base: &Node) {
-        // Clean-up of the plugin goes here.
-        // Always remember to remove it from the engine when deactivated.
-        //_base.remove_custom_type("MyButton");
         todo!()
     }
 
     #[tokio::main]
+    #[method]
     async fn main() {
         //let config = IpfsOptions::default();
         let path1 = PathBuf::from(r"res://addons/godot-ipfs");
@@ -121,8 +116,10 @@ impl IPFS{
 
         let ipfs : Ipfs<P> = Ipfs::new(config).await.unwrap();
 
+        
         // The CID  of the file you want to Download
-        //let cid = "QmNoThogc1D7XCzQrjePPxChyGmuohX6LXqDTCLJwTUUfR".parse().unwrap();
+        let cid_string = "QmNoThogc1D7XCzQrjePPxChyGmuohX6LXqDTCLJwTUUfR".to_string();
+        let cid  = Cid::from_str(cid_string).unwrap();
 
         // Download the File
         //let data = ipfs.get(cid).unwrap();

@@ -43,7 +43,8 @@ trait NativeClass{
 impl IPFS{
     //P : dyn StoreParams <Hashes = dyn MultihashDigest<10usize>, Codecs = dyn Codec>,
     //type <S>;
-    type P = dyn StoreParams <Hashes = dyn MultihashDigest<10usize>, Codecs = dyn Codec>; // <Hashes = dyn MultihashDigest<10usize>, Codecs = dyn Codec>;
+    type S = dyn usize;
+    type P = dyn StoreParams <Hashes = dyn MultihashDigest<S >, Codecs = dyn Codec>; // <Hashes = dyn MultihashDigest<10usize>, Codecs = dyn Codec>;
     
 
     //fn new(_base: &Node) -> Self {

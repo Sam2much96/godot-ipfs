@@ -63,11 +63,11 @@ impl AsyncExecutorDriver {
     }
 }
 
-fn init<P>(handle: InitHandle) {
+fn init(handle: InitHandle) {
     gdnative::tasks::register_runtime(&handle);
     gdnative::tasks::set_executor(EXECUTOR.with(|e| *e));
 
-    handle.add_class::<IPFS::IPFS<P>>();
+    handle.add_class::<IPFS::IPFS>();
     handle.add_class::<AsyncExecutorDriver>();
 }
 

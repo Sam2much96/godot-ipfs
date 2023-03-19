@@ -1,0 +1,9 @@
+[gd_resource type="GDNativeLibrary" format=2]
+
+[resource]
+entry/Windows.64 = "res://addons/algodot/lib/algodot.dll"
+entry/X11.64 = "res://target/x86_64-unknown-linux-gnu/release/libgodot_ipfs.so"
+entry/X11.32 = "res://target/x86_64-unknown-linux-gnu/release/libgodot_ipfs.so"
+dependency/Windows.64 = [  ]
+dependency/X11.64 = [  ]
+dependency/X11.32 = [  ]

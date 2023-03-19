@@ -1,182 +1,78 @@
-// Rust GDNative implementation of this Godot tutorial:
-// https://docs.godotengine.org/en/stable/tutorials/plugins/editor/making_plugins.html#a-custom-node
+use futures::join;
+use ipfs::{make_ipld, IpfsPath, TestTypes, UninitializedIpfs};
+use tokio::task;
 
-use gdnative::api::{ Resource, Script, Texture};
-use gdnative::api::Engine;
+
+
+use anyhow::{anyhow, Error};
+use futures::{future::FutureExt, pin_mut, StreamExt};
+use ipfs::{Ipfs, Multiaddr};
+
+use ipfs::p2p::SwarmOptions;
+use ipfs::IpfsOptions;
+use ipfs::MultiaddrWithPeerId;
+
+use std::convert::TryFrom;
+
 use gdnative::prelude::*;
-use gdnative::tasks::{Async, AsyncMethod, Spawner};
-
-//ipfs
-use ipfs_embed::{Ipfs, Config, StorageConfig, NetworkConfig};
-use ipfs_embed::identity::ed25519::Keypair;
-
-use libipld::store::StoreParams;
-use libipld::cid::multihash::MultihashDigest;
-use libipld::codec::Codec;
-use ipfs_embed::Cid;
-
-use std::path::PathBuf;
-use std::time::Duration;
-
-
 
 #[derive(NativeClass)]
 #[inherit(Node)]
-//#[feature(inherent_associated_types)]
+pub struct IPFS {}
 
-//#[register_with(Self::register)]
-
-pub struct IPFS<'P>{
-    //S : dyn 10usize,
-   // P : dyn StoreParams <Hashes = dyn MultihashDigest<10usize>, Codecs = dyn Codec>,
-}
-
-
-
-trait NativeClassMethods {
-        fn new() -> VariantArray{todo!()}
-    }
-trait NativeClass{
-    
-
-        fn new() -> VariantArray{todo!()}
+impl IPFS {
+    fn new(_owner: &Node) -> Self {
+        IPFS{}
     }
 
-trait usize<'a>{}
+    async fn run() -> Result<(), ipfs::Error> {
+    //tracing_subscriber::fmt::init();
 
-impl dyn MultihashDigest<{S}>{
-     //type S ; //= dyn usize<'a>;
+    // Initialize the repo and start a daemon
+    let opts = IpfsOptions::inmemory_with_generated_keys();
+    let (ipfs, fut): (Ipfs<TestTypes>, _) = UninitializedIpfs::new(opts).start().await.unwrap();
+    task::spawn(fut);
+
+    // Create a DAG
+    let f1 = ipfs.put_dag(make_ipld!("block1"));
+    let f2 = ipfs.put_dag(make_ipld!("block2"));
+    let (res1, res2) = join!(f1, f2);
+    let root = make_ipld!([res1.unwrap(), res2.unwrap()]);
+    let cid = ipfs.put_dag(root).await.unwrap();
+    let path = IpfsPath::from(cid);
+
+    // Query the DAG
+    let path1 = path.sub_path("0").unwrap();
+    let path2 = path.sub_path("1").unwrap();
+    let f1 = ipfs.get_dag(path1);
+    let f2 = ipfs.get_dag(path2);
+    let (res1, res2) = join!(f1, f2);
+    println!("Received block with contents: {:?}", res1.unwrap());
+    println!("Received block with contents: {:?}", res2.unwrap());
+
+    // Exit
+    ipfs.exit_daemon().await;
+    Ok(())
+}
 
 }
 
-//#[feature(inherent_associated_types)]
 #[methods]
-impl <P> IPFS<'_>{
-    //P : dyn StoreParams <Hashes = dyn MultihashDigest<10usize>, Codecs = dyn Codec>,
-    
-    
-    
-    //type S = dyn usize<'a>;
-    type P = dyn StoreParams <Hashes = dyn MultihashDigest<{S}>, Codecs = dyn Codec>; // <Hashes = dyn MultihashDigest<10usize>, Codecs = dyn Codec>;
-    
-
-    fn new(_base: &Node) -> Self {
-        //IPFSNode
+impl IPFS {
+    #[export]
+    fn _ready(&self, _owner: TRef<Node>) {
         todo!()
     }
 
-    #[tokio::main]
-    #[method]
-    async fn main() {
-        //let config = IpfsOptions::default();
-        let path1 = PathBuf::from(r"res://addons/godot-ipfs");
-        let path2 = PathBuf::from(r"res://addons/godot-ipfs");
-        let path3 = PathBuf::from(r"res://addons/godot-ipfs");
-        let five_seconds = Duration::new(5, 0);
-        let six_seconds = Duration::new(6, 0);
+    #[export]
+    fn start(&self, _owner: TRef<Node>) -> bool {
+        let fut = IPFS::run();
+        let _ = tokio::spawn(async move {
+            if let Err(e) = fut.await {
+                godot_error!("IPFS error: {}", e);
+            }
+        });
 
-        let keypair = Keypair::generate();
-
-
-
-        let storage_params = StorageConfig{
-            path: Some (path1) ,
-            access_db_path : Some (path2) ,
-            cache_size_blocks : 0u64,
-            cache_size_bytes : 0u64,
-            gc_interval : five_seconds,
-            gc_min_blocks : 0usize,
-            gc_target_duration : six_seconds,
-
-        };
-
-        let network_params = NetworkConfig{
-            enable_loopback : true,
-            port_reuse : true,
-            node_name : String::from("IpfsNode"),
-            node_key: keypair,
-            psk: None,
-            dns: None,
-            mdns: None,
-            kad: None,
-            ping: None,
-            identify: None,
-            gossipsub: None,
-            broadcast: None,
-            bitswap: None,
-            keep_alive: true,
-
-
-        };
-
-        let config = Config {
-            storage: storage_params,
-            network: network_params,
-        };
-
-        let ipfs : Ipfs<P> = Ipfs::new(config).await.unwrap();
-
-        
-        // The CID  of the file you want to Download
-        let cid_string = "QmNoThogc1D7XCzQrjePPxChyGmuohX6LXqDTCLJwTUUfR".to_string();
-        let cid  = Cid::from_str(cid_string).unwrap();
-
-        // Download the File
-        //let data = ipfs.get(cid).unwrap();
-
-        //print the downloaded file's contents
-        //println!("{}", String::from_utf8_lossy(&data));
-        //let status = ipfs.peers().swap(10usize, 10usize);
-        //println!("{:?}", &status);
-    }
-
-    //trait NativeClassMethods{
-    //    fn 
-    //}
-
-    //impl NativeClassMethods for IPFSNode{
-
-    //}
-
-
-
-}
-
-#[derive(NativeClass)]
-#[inherit(Button)]
-struct MyButton;
-
-#[methods]
-impl MyButton {
-    fn new(_owner: TRef<Button>) -> Self {
-        MyButton
-    }
-
-    #[method]
-    fn _enter_tree(&self, #[base] owner: TRef<Button>) {
-        owner
-            .connect("pressed", owner, "clicked", VariantArray::new_shared(), 0)
-            .unwrap();
-    }
-
-    #[method]
-    fn clicked(&self) {
-        godot_print!("You clicked me!");
+        true
     }
 }
-
-//unsafe fn load<T>(path: &str, hint: &str) -> Option<Ref<T, Shared>>
-//where
-//    T: GodotObject<Memory = RefCounted> + SubClass<Resource>,
-//{
-//    let resource = ResourceLoader::godot_singleton().load(path, hint, false)?;
-//    let resource = resource.assume_safe().claim();
-//    resource.cast::<T>()
-//}
-
-//fn init(handle: InitHandle) {
-//    handle.add_tool_class::<IPFS>();
-    //handle.add_tool_class::<MyButton>();
-//}
-
-//godot_init!(init);

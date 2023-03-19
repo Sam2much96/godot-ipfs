@@ -25,6 +25,7 @@ impl IPFS {
         IPFS{}
     }
 
+    
     async fn run() -> Result<(), ipfs::Error> {
     //tracing_subscriber::fmt::init();
 
@@ -61,7 +62,7 @@ impl IPFS {
 impl IPFS {
     #[export]
     fn _ready(&self, _owner: TRef<Node>) {
-        todo!()
+        IPFS::run();
     }
 
     #[export]

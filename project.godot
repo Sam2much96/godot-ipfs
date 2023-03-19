@@ -9,19 +9,19 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "EditorPlugin",
-"class": "CustomNode",
+"base": "",
+"class": "AsyncExecutorDriver",
 "language": "NativeScript",
-"path": "res://addons/my_custom_node/custom_node.gdns"
+"path": "res://addons/ipfs/async_executor.gdns"
 }, {
-"base": "Button",
-"class": "MyButton",
+"base": "",
+"class": "IPFS",
 "language": "NativeScript",
-"path": "res://my_button.gdns"
+"path": "res://addons/ipfs/ipfs.gdns"
 } ]
 _global_script_class_icons={
-"CustomNode": "",
-"MyButton": ""
+"AsyncExecutorDriver": "",
+"IPFS": ""
 }
 
 [application]
@@ -30,9 +30,13 @@ config/name="native_plugin"
 run/main_scene="res://Main.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+AsyncExecutorDriver="*res://addons/ipfs/async_executor.gdns"
+
 [editor_plugins]
 
-enabled=PoolStringArray( "my_custom_node" )
+enabled=PoolStringArray( "res://addons/ipfs/plugin.cfg" )
 
 [rendering]
 

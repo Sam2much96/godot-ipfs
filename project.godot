@@ -9,18 +9,12 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "",
-"class": "AsyncExecutorDriver",
-"language": "NativeScript",
-"path": "res://addons/ipfs/async_executor.gdns"
-}, {
-"base": "",
+"base": "Node",
 "class": "IPFS",
 "language": "NativeScript",
-"path": "res://addons/ipfs/ipfs.gdns"
+"path": "res://addons/ipfs/custom_node.gdns"
 } ]
 _global_script_class_icons={
-"AsyncExecutorDriver": "",
 "IPFS": ""
 }
 

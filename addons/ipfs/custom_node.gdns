@@ -3,6 +3,6 @@
 [ext_resource path="res://addons/ipfs/gdnative_lib.tres" type="GDNativeLibrary" id=1]
 
 [resource]
-class_name = "libgodot_ipfs"
+class_name = "IPFS"
 library = ExtResource( 1 )
 script_class_name = "IPFS"

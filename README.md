@@ -165,12 +165,12 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 
 <!-- ROADMAP -->
-## Roadmap
+## What Works
 
-- [x] Add Changelog
-- [x] Add back to top links
-- [ ] Add Additional Templates w/ Examples
-- [ ] Add "components" document to easily copy & paste sections of the readme
+- [x] Successfully Compiles and Runs in Godot as Nativelib Plugin
+- [x] Can create IPFS Node in Godot Engine
+- [ ] Dag Test Panics
+- [ ] Fetch files using CID
 - [ ] Multi-language Support
     - [ ] Chinese
     - [ ] Spanish

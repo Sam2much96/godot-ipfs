@@ -1,10 +1,10 @@
 extends Node2D
 
-
+var t : IPFS
 func _ready():
 	
 	# Starts the IPFS Daemon for a Dag test
 	
-	IPFS.new()
-	IPFS.testing()
+	t = IPFS.new()
+	#IPFS.run()
 	

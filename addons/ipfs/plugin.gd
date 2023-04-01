@@ -20,7 +20,7 @@ func _enter_tree():
 	var node_icon = gui.get_icon("Node", "EditorIcons")
 
 	add_custom_type(
-		"Algod",
+		"IPFS",
 		"Node",
 		preload("res://addons/ipfs/custom_node.gdns"),
 		node_icon
